@@ -28,8 +28,8 @@ pipeline {
         stage('Run Tests') {
     steps {
         script {
-            docker.image(env.DOCKER_IMAGE).inside('-v /c/ProgramData/Jenkins/.jenkins/workspace/Flask-App-Pipeline:/app') {
-                sh 'python -m pytest /app/tests/'
+            docker.image(env.DOCKER_IMAGE).inside('-v /c/ProgramData/Jenkins/.jenkins/workspace/Flask-App-Pipeline') {
+                sh 'python -m pytest test_routes.py'
             }
         }
     }

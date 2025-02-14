@@ -1,5 +1,5 @@
 import pytest
-from app.routes import app
+from routes import app
 
 @pytest.fixture
 def client():
