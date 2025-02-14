@@ -3,14 +3,15 @@ pipeline {
 
     environment {
         DOCKER_HUB_CREDENTIALS = credentials('vaishnavi7009_dockerhub')
-        DOCKER_IMAGE = 'vaishnavi7009/flask-app'
+        GIT_REPO = 'https://github.com/Decode777/assess2_jenk.git'
+        DOCKER_IMAGE = 'vaishnavi7009/your-flask-app'
     }
 
     stages {
         // Stage 1: Checkout Code
         stage('Checkout Code') {
             steps {
-                git branch: 'main', url: 'https://github.com/Decode777/assess2_jenk.git'
+                git branch: 'main', url: env.GIT_REPO
             }
         }
 
@@ -18,7 +19,7 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
-                    docker.build("${DOCKER_IMAGE}:${env.BUILD_ID}")
+                    docker.build(env.DOCKER_IMAGE)
                 }
             }
         }
@@ -27,8 +28,8 @@ pipeline {
         stage('Run Tests') {
             steps {
                 script {
-                    docker.image("${DOCKER_IMAGE}:${env.BUILD_ID}").inside {
-                        bat 'python -m pytest tests/'
+                    docker.image(env.DOCKER_IMAGE).inside {
+                        sh 'python -m pytest app/tests/'
                     }
                 }
             }
@@ -38,20 +39,9 @@ pipeline {
         stage('Push Image to Docker Hub') {
             steps {
                 script {
-                    docker.withRegistry('https://registry.hub.docker.com', 'vaishnavi7009_dockerhub') {
-                        docker.image("${DOCKER_IMAGE}:${env.BUILD_ID}").push()
+                    docker.withRegistry('https://registry.hub.docker.com', env.DOCKER_HUB_CREDENTIALS) {
+                        docker.image(env.DOCKER_IMAGE).push('latest')
                     }
-                }
-            }
-        }
-
-        // Stage 5: Deploy Application
-        stage('Deploy Application') {
-            steps {
-                sshagent(['remote-server-credentials']) {
-                    bat """
-                        powershell -Command "& { ssh -o StrictHostKeyChecking=no user@remote-server 'docker-compose down && docker-compose pull && docker-compose up -d' }"
-                    """
                 }
             }
         }
