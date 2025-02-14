@@ -2,7 +2,7 @@
 FROM python:3.9-slim
 
 # Set the working directory in the container
-WORKDIR /
+WORKDIR /app
 
 # Copy the requirements file into the container
 COPY requirements.txt .
@@ -17,4 +17,4 @@ COPY . .
 EXPOSE 5000
 
 # Run the Flask application
-CMD ["python", "__init__.py"]
+CMD ["python", "routes.py"]

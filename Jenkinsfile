@@ -8,39 +8,36 @@ pipeline {
     }
 
     stages {
-        // Stage 1: Checkout Code
         stage('Checkout Code') {
             steps {
                 git branch: 'main', url: env.GIT_REPO
             }
         }
 
-        // Stage 2: Build Docker Image
         stage('Build Docker Image') {
             steps {
                 script {
-                    docker.build(env.DOCKER_IMAGE)
+                    docker.build("${env.DOCKER_IMAGE}:${env.BUILD_ID}")
                 }
             }
         }
 
-        // Stage 3: Run Tests
         stage('Run Tests') {
-    steps {
-        script {
-            docker.image(env.DOCKER_IMAGE).inside('-v /c/ProgramData/Jenkins/.jenkins/workspace/Flask-App-Pipeline') {
-                sh 'python -m pytest test_routes.py'
+            steps {
+                script {
+                    docker.image("${env.DOCKER_IMAGE}:${env.BUILD_ID}").inside('--workdir /app') {
+                        sh 'pytest test_routes.py'
+                    }
+                }
             }
         }
-    }
-}
 
-        // Stage 4: Push Image to Docker Hub
         stage('Push Image to Docker Hub') {
             steps {
                 script {
                     docker.withRegistry('https://registry.hub.docker.com', env.DOCKER_HUB_CREDENTIALS) {
-                        docker.image(env.DOCKER_IMAGE).push('latest')
+                        docker.image("${env.DOCKER_IMAGE}:${env.BUILD_ID}").push()
+                        docker.image("${env.DOCKER_IMAGE}:${env.BUILD_ID}").push('latest')
                     }
                 }
             }
