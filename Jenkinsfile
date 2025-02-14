@@ -26,14 +26,14 @@ pipeline {
 
         // Stage 3: Run Tests
         stage('Run Tests') {
-            steps {
-                script {
-                    docker.image(env.DOCKER_IMAGE).inside {
-                        sh 'python -m pytest app/tests/'
-                    }
-                }
+    steps {
+        script {
+            docker.image(env.DOCKER_IMAGE).inside('-v /c/ProgramData/Jenkins/.jenkins/workspace/Flask-App-Pipeline:/app') {
+                sh 'python -m pytest /app/app/tests/'
             }
         }
+    }
+}
 
         // Stage 4: Push Image to Docker Hub
         stage('Push Image to Docker Hub') {
