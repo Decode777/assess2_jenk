@@ -29,7 +29,7 @@ pipeline {
     steps {
         script {
             docker.image(env.DOCKER_IMAGE).inside('-v /c/ProgramData/Jenkins/.jenkins/workspace/Flask-App-Pipeline:/app') {
-                sh 'python -m pytest /app/app/tests/'
+                sh 'python -m pytest /app/tests/'
             }
         }
     }
